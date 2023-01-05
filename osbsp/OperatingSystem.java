@@ -164,8 +164,8 @@ public class OperatingSystem {
 	/**
 	 * Prozess-Objekt (Thread) erzeugen und in Prozessliste eintragen
 	 * 
-	 * @param die
-	 *            Gr��e des Prozess-Hauptspeicherbedarfs in Byte
+	 * @param processSize: die Gr��e des Prozess-Hauptspeicherbedarfs in Byte
+	 *
 	 * 
 	 * @return die neue Prozess-ID oder -1, wenn Erzeugung nicht m�glich
 	 *         (Speichermangel)
@@ -258,6 +258,8 @@ public class OperatingSystem {
 		// Seite in Seitentabelle referenzieren
 		proc = getProcess(pid);
 		pte = proc.pageTable.getPte(virtualPageNum);
+
+
 		if (pte == null) {
 			// Seite nicht vorhanden:
 			testOut("OS: write " + pid + " +++ Seitennr.: " + virtualPageNum
@@ -306,8 +308,10 @@ public class OperatingSystem {
 	 * @return Datenwort auf logischer Adresse virtAdr oder -1 bei
 	 *         Zugriffsfehler
 	 */
+
+
 	public synchronized int read(int pid, int virtAdr) {
-	/*
+
 		int virtualPageNum; // Virtuelle Seitennummer
 		int offset; // Offset innerhalb der Seite
 		int realAddressOfItem; // Reale Adresse des Datenworts
@@ -331,21 +335,13 @@ public class OperatingSystem {
 		// Seite in Seitentabelle referenzieren
 		proc = getProcess(pid);
 		pte = proc.pageTable.getPte(virtualPageNum);
+
+
 		if (pte == null) {
 			// Seite nicht vorhanden:
 			testOut("OS: read " + pid + " +++ Seitennr.: " + virtualPageNum
 					+ " in Seitentabelle nicht vorhanden");
-			pte = new PageTableEntry();
-			pte.virtPageNum = virtualPageNum;
-			// Seitenrahmen im RAM für die neue Seite anfordern und reale
-			// (RAM-)SeitenAdresse eintragen
-			pte.realPageFrameAdr = getNewRAMPage(pte, pid);
-			pte.valid = true;
-			// neue Seite in Seitentabelle eintragen
-			proc.pageTable.addEntry(pte);
-			testOut("OS: write " + pid + " Neue Seite " + virtualPageNum
-					+ " in Seitentabelle eingetragen! RAM-Adr.: "
-					+ pte.realPageFrameAdr);
+			return -1;
 		} else {
 			// Seite vorhanden: Seite valid (im RAM)?
 			if (!pte.valid) {
@@ -358,7 +354,7 @@ public class OperatingSystem {
 		// Reale Adresse des Datenworts berechnen
 		realAddressOfItem = pte.realPageFrameAdr + offset;
 		// Datenwort aus RAM auslesen
-		readFromRAM(realAddressOfItem);
+		int item = readFromRAM(realAddressOfItem);
 		testOut("OS: read " + pid
 				+ " erfolgreich aus virt. Adresse " + virtAdr
 				+ " gelesen! RAM-Adresse: " + realAddressOfItem + " \n");
@@ -367,9 +363,9 @@ public class OperatingSystem {
 		// Statistische Zählung
 		eventLog.incrementReadAccesses();
 
-		 */
-		return 0;
-	
+		return item;
+
+		//return 0;
 	}
 
 	// --------------- Private Methoden des Betriebssystems
@@ -399,7 +395,7 @@ public class OperatingSystem {
 	 */
 	private int getOffset(int virtAdr) {
 		// Virtuelle Adresse = Virtuelle Seitennummer * Seitengröße + Offset
-		return virtAdr - getVirtualPageNum(virtAdr);
+		return virtAdr%PAGE_SIZE;
 	}
 
 	/**

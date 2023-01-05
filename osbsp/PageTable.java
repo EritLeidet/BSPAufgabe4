@@ -167,7 +167,6 @@ public class PageTable {
 		pteRAMlist.remove(pte);
 		pteRAMlist.add(newPte);
 		return pte;
-		return pte;
 	}
 
 	// ----------------------- Hilfsmethode --------------------------------
